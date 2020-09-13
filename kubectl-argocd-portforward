@@ -1,2 +1,5 @@
 #!/bin/bash
+##################################################
+# PortForward to ArgoCD server
+##################################################
 kubectl $@ -n argocd port-forward svc/argocd-server 8000:80
