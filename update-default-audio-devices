@@ -1,0 +1,96 @@
+#!/bin/bash
+##################################################
+# Update default audio devices
+##################################################
+
+printInfo() {
+    echo "$(date "+%Y/%m/%d-%H:%M:%S") [INFO] $@"
+}
+
+printError() {
+    echo "$(date "+%Y/%m/%d-%H:%M:%S") [ERROR] $@"
+}
+
+get_current_source() {
+    echo "$PACMD_INFO" | grep "Default source name" | sed -e "s/Default source name: //g"
+}
+
+get_current_sink() {
+    echo "$PACMD_INFO" | grep "Default sink name" | sed -e "s/Default sink name: //g"
+}
+
+check_devide_connected() {
+    echo "$PACMD_INFO" | grep "name: <$1>" > /dev/null
+}
+
+select_first_connected_device() {
+    for device in $@
+    do
+        check_devide_connected $device
+        if [ $? -eq 0 ]; then
+            echo $device
+            return 0
+        fi
+    done
+    return 1
+}
+
+update_default_source_device() {
+    CURRENT_SOURCE=$(get_current_source)
+    DESIRED_SOURCE=$(select_first_connected_device ${DESIRED_SOURCE_LIST[@]})
+    if [ "$CURRENT_SOURCE" == "" ]; then
+        printError "Current source device doesn't found."
+        return 1
+    fi
+    if [ "$DESIRED_SOURCE" == "" ]; then
+        printError "Desired source device doesn't found."
+        return 1
+    fi
+    if [ "$CURRENT_SOURCE" != "$DESIRED_SOURCE" ]; then
+        printInfo "Source device update from \"$CURRENT_SOURCE\" to \"$DESIRED_SOURCE\""
+        pacmd set-default-source $DESIRED_SOURCE
+    fi
+}
+
+update_default_sink_device() {
+    CURRENT_SINK=$(get_current_sink)
+    DESIRED_SINK=$(select_first_connected_device ${DESIRED_SINK_LIST[@]})
+    if [ "$CURRENT_SINK" == "" ]; then
+        printError "Current sink device doesn't found."
+        return 1
+    fi
+    if [ "$DESIRED_SINK" == "" ]; then
+        printError "Desired sink device doesn't found."
+        return 1
+    fi
+    if [ "$CURRENT_SINK" != "$DESIRED_SINK" ]; then
+        printInfo "Sink device update from \"$CURRENT_SINK\" to \"$DESIRED_SINK\""
+        pacmd set-default-sink $DESIRED_SINK
+    fi
+}
+
+main() {
+    while true
+    do
+        PACMD_INFO=$(pacmd info)
+        update_default_source_device
+        update_default_sink_device
+        sleep 1
+    done
+}
+
+DESIRED_SOURCE_LIST=(
+    # MARANTZ M4U
+    "alsa_input.usb-C-Media_Electronics_Inc._MARANTZ_M4U_20190520-00.mono-fallback"
+    # Build-in
+    "alsa_input.pci-0000_00_1f.3.analog-stereo"
+)
+
+DESIRED_SINK_LIST=(
+    # WF-1000XM3
+    "bluez_sink.38_18_4C_47_7B_B4.a2dp_sink"
+    # Build-in
+    "alsa_output.pci-0000_00_1f.3.analog-stereo"
+)
+
+main
