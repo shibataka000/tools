@@ -56,8 +56,6 @@ do
         if device_connected $DEFAULT_SOURCE; then
             printlog "INFO" "Source device update from \"$(current_source)\" to \"$DEFAULT_SOURCE\""
             pacmd set-default-source $DEFAULT_SOURCE
-        else
-            printlog "WARN" "\"$DEFAULT_SOURCE\" doesn't connected"
         fi
     fi
 
@@ -65,8 +63,6 @@ do
         if device_connected $DEFAULT_SINK; then
             printlog "INFO" "Sink device update from \"$(current_sink)\" to \"$DEFAULT_SINK\""
             pacmd set-default-sink $DEFAULT_SINK
-        else
-            printlog "WARN" "\"$DEFAULT_SINK\" doesn't connected"
         fi
     fi
 
