@@ -8,4 +8,4 @@ ExecStop=pkill -f update-default-audio-devices
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
