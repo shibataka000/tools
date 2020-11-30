@@ -34,36 +34,41 @@ contain() {
 }
 
 SOURCE_WHITELIST=(
-    # MARANTZ M4U (default)
+    # MARANTZ M4U (1st priority)
     "alsa_input.usb-C-Media_Electronics_Inc._MARANTZ_M4U_20190520-00.mono-fallback"
 )
 
 SINK_WHITELIST=(
-    # Build-in (default)
-    "alsa_output.pci-0000_00_1f.3.analog-stereo"
-    # WF-1000XM3 sink
+    # WF-1000XM3 sink (1st priority) 
     "bluez_sink.38_18_4C_47_7B_B4.a2dp_sink"
+    # Build-in (2nd priority)
+    "alsa_output.pci-0000_00_1f.3.analog-stereo"
 )
-
-DEFAULT_SOURCE=${SOURCE_WHITELIST[0]}
-DEFAULT_SINK=${SINK_WHITELIST[0]}
 
 while true
 do
     pacmd_info=$(pacmd info)
 
     if ! contain $(current_source) ${SOURCE_WHITELIST[@]}; then
-        if device_connected $DEFAULT_SOURCE; then
-            printlog "INFO" "Source device update from \"$(current_source)\" to \"$DEFAULT_SOURCE\""
-            pacmd set-default-source $DEFAULT_SOURCE
-        fi
+        for desired_source in ${SOURCE_WHITELIST[@]}
+        do
+            if device_connected $desired_source; then
+                printlog "INFO" "Source device update from \"$(current_source)\" to \"$desired_source\""
+                pacmd set-default-source $desired_source
+                break
+            fi
+        done
     fi
 
     if ! contain $(current_sink) ${SINK_WHITELIST[@]}; then
-        if device_connected $DEFAULT_SINK; then
-            printlog "INFO" "Sink device update from \"$(current_sink)\" to \"$DEFAULT_SINK\""
-            pacmd set-default-sink $DEFAULT_SINK
-        fi
+        for desired_sink in ${SINK_WHITELIST[@]}
+        do
+            if device_connected $desired_sink; then
+                printlog "INFO" "Sink device update from \"$(current_sink)\" to \"$desired_sink\""
+                pacmd set-default-sink $desired_sink
+                break
+            fi
+        done
     fi
 
     sleep 5
