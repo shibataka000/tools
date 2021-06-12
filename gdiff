@@ -36,4 +36,7 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
+get_content ${1} > /dev/null
+get_content ${2} > /dev/null
+
 diff -u -N --color=auto <(get_content ${1}) <(get_content ${2})
