@@ -36,7 +36,12 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-get_content ${1} > /dev/null
-get_content ${2} > /dev/null
+file1=$(tempfile)
+get_content ${1} > ${file1}
 
-diff -u -N --color=auto <(get_content ${1}) <(get_content ${2})
+file2=$(tempfile)
+get_content ${2} > ${file2}
+
+diff -u -N --color=auto ${file1} ${file2}
+
+rm ${file1} ${file2}
