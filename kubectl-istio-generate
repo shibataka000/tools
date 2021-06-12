@@ -1,7 +1,7 @@
 #!/bin/bash
-######################################################################
-# Add script to generate istio manifests and reorder it by kustomize
-######################################################################
+############################################################
+# Generate istio manifests and reorder it by kustomize
+############################################################
 WORKDIR=$(mktemp -d)
 istioctl manifest generate $@ > $WORKDIR/generated.yaml
 cd $WORKDIR
