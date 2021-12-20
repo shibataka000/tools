@@ -16,8 +16,10 @@ fi
 tsh kube login --proxy ${TSH_PROXY} --auth ${TSH_AUTH} --user ${TSH_USER} --bind-addr ${TSH_BIND_ADDR} ${TSH_KUBE_CLUSTER}
 if [ "$(kubectl config current-context)" != "${TSH_PROXY}-${TSH_KUBE_CLUSTER}" ]; then
     echo -e "\e[31mERROR: Fail to log in teleport server.\e[m"
+    kubectl config use-context ${CURRENT_CONTEXT}
     exit 1
 fi
+
 if kubectl config get-contexts ${TSH_KUBE_CLUSTER} &> /dev/null; then
     kubectl config delete-context ${TSH_KUBE_CLUSTER}
 fi
