@@ -34,4 +34,4 @@ fi
 kubectl config rename-context $(kubectl config current-context) ${TSH_KUBE_CLUSTER}
 kubectl config use-context ${CURRENT_CONTEXT}
 
-TSH_CONTEXT=${TSH_CONTEXT} TSH_PROXY=${TSH_PROXY} yq e '(.users[] | select(.name == env(TSH_CONTEXT))).user.exec.args += "--proxy=" + env(TSH_PROXY)' -i ${KUBECONFIG}
+TSH_CONTEXT=${TSH_CONTEXT} TSH_PROXY=${TSH_PROXY} yq e '(.users[] | select(.name == env(TSH_CONTEXT))).user.exec.env += [{"name": "TELEPORT_PROXY", "value": env(TSH_PROXY)}]' -i ${KUBECONFIG}
