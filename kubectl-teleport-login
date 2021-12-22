@@ -1,11 +1,18 @@
 #!/bin/bash
 set -eu
 
+for bin in gh jq yq
+do
+    command -v ${bin} > /dev/null
+done
+
 TSH_KUBE_CLUSTER=${1}
 TSH_PROXY=${TSH_KUBE_CLUSTER}
-TSH_AUTH=${TSH_AUTH:-github}
+TSH_AUTH=github
 TSH_USER=$(gh api user | jq -r .login)
 TSH_BIND_ADDR=localhost:8000
+TSH_CONTEXT=${TSH_PROXY}-${TSH_KUBE_CLUSTER}
+KUBECONFIG=${KUBECONFIG:-${HOME}/.kube/config}
 CURRENT_CONTEXT=$(kubectl config current-context)
 
 if [ -z "${TSH_USER}" -o "${TSH_USER}" = "null" ]; then
@@ -13,8 +20,9 @@ if [ -z "${TSH_USER}" -o "${TSH_USER}" = "null" ]; then
     exit 1
 fi
 
-tsh kube login --proxy ${TSH_PROXY} --auth ${TSH_AUTH} --user ${TSH_USER} --bind-addr ${TSH_BIND_ADDR} ${TSH_KUBE_CLUSTER}
-if [ "$(kubectl config current-context)" != "${TSH_PROXY}-${TSH_KUBE_CLUSTER}" ]; then
+tsh login --proxy ${TSH_PROXY} --auth ${TSH_AUTH} --user ${TSH_USER} --bind-addr ${TSH_BIND_ADDR}
+tsh kube login ${TSH_KUBE_CLUSTER}
+if [ "$(kubectl config current-context)" != "${TSH_CONTEXT}" ]; then
     echo -e "\e[31mERROR: Fail to log in teleport server.\e[m"
     kubectl config use-context ${CURRENT_CONTEXT}
     exit 1
@@ -25,3 +33,5 @@ if kubectl config get-contexts ${TSH_KUBE_CLUSTER} &> /dev/null; then
 fi
 kubectl config rename-context $(kubectl config current-context) ${TSH_KUBE_CLUSTER}
 kubectl config use-context ${CURRENT_CONTEXT}
+
+TSH_CONTEXT=${TSH_CONTEXT} TSH_PROXY=${TSH_PROXY} yq e '(.users[] | select(.name == env(TSH_CONTEXT))).user.exec.args += "--proxy=" + env(TSH_PROXY)' -i ${KUBECONFIG}
