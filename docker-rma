@@ -1,0 +1,19 @@
+#!/bin/bash
+##################################################
+# Delete all docker containers and images.
+##################################################
+
+if [ "${1}" = "docker-cli-plugin-metadata" ]; then
+    echo '{"SchemaVersion": "0.1.0","Vendor": "shibataka000","Version": "0.0.1","ShortDescription": "Delete all docker containers and images"}'
+    exit
+fi
+
+DOCKER_PS=$(docker ps -aq)
+if [ "${DOCKER_PS}" != "" ];  then
+    docker ps -aq | xargs docker rm
+fi
+
+DOCKER_IMAGES=$(docker images -aq)
+if [ "${DOCKER_IMAGES}" != "" ]; then
+    docker images -aq | xargs docker rmi
+fi
