@@ -1,37 +1,48 @@
 #!/bin/bash
 set -eu
 
-for bin in gh jq yq
+for bin in gh jq
 do
     command -v ${bin} > /dev/null
 done
 
-TSH_KUBE_CLUSTER=${1}
-TSH_PROXY=${TSH_KUBE_CLUSTER}
-TSH_AUTH=github
-TSH_USER=$(gh api user | jq -r .login)
-TSH_BIND_ADDR=localhost:8000
-TSH_CONTEXT=${TSH_PROXY}-${TSH_KUBE_CLUSTER}
-KUBECONFIG=${KUBECONFIG:-${HOME}/.kube/config}
-CURRENT_CONTEXT=$(kubectl config current-context)
+TELEPORT_CLUSTER=${1}
+TELEPORT_KUBE_CLUSTER=${1}
+TELEPORT_PROXY=${1}
+TELEPORT_AUTH=github
+TELEPORT_USER=$(gh api user | jq -r .login)
+TELEPORT_LOGIN_BIND_ADDR=localhost:8000
+KUBE_CURRENT_CONTEXT=$(kubectl config current-context)
+KUBE_TELEPORT_CONTEXT=${2:-${1}}
+KUBE_TELEPORT_CONTEXT_DEFAULT=${1}-${1}
+KUBE_TELEPORT_USER=${1}-${1}
 
-if [ -z "${TSH_USER}" -o "${TSH_USER}" = "null" ]; then
+if [ -z "${TELEPORT_USER}" -o "${TELEPORT_USER}" = "null" ]; then
     echo -e "\e[31mERROR: Fail to fetch github user name.\e[m"
     exit 1
 fi
 
-tsh login --proxy ${TSH_PROXY} --auth ${TSH_AUTH} --user ${TSH_USER} --bind-addr ${TSH_BIND_ADDR}
-tsh kube login ${TSH_KUBE_CLUSTER}
-if [ "$(kubectl config current-context)" != "${TSH_CONTEXT}" ]; then
+# Log in teleport
+tsh login --proxy ${TELEPORT_PROXY} --auth ${TELEPORT_AUTH} --user ${TELEPORT_USER} --bind-addr ${TELEPORT_LOGIN_BIND_ADDR}
+tsh kube login ${TELEPORT_KUBE_CLUSTER}
+if [ "$(kubectl config current-context)" != "${KUBE_TELEPORT_CONTEXT_DEFAULT}" ]; then
     echo -e "\e[31mERROR: Fail to log in teleport server.\e[m"
-    kubectl config use-context ${CURRENT_CONTEXT}
+    kubectl config use-context ${KUBE_CURRENT_CONTEXT}
     exit 1
 fi
 
-if kubectl config get-contexts ${TSH_KUBE_CLUSTER} &> /dev/null; then
-    kubectl config delete-context ${TSH_KUBE_CLUSTER}
-fi
-kubectl config rename-context $(kubectl config current-context) ${TSH_KUBE_CLUSTER}
-kubectl config use-context ${CURRENT_CONTEXT}
+# Set environment variables fot tsh to kubeconfig
+kubectl config set-credentials ${KUBE_TELEPORT_USER} --exec-env=TELEPORT_CLUSTER=${TELEPORT_CLUSTER}
+kubectl config set-credentials ${KUBE_TELEPORT_USER} --exec-env=TELEPORT_PROXY=${TELEPORT_PROXY}
+kubectl config set-credentials ${KUBE_TELEPORT_USER} --exec-env=TELEPORT_AUTH=${TELEPORT_AUTH}
+kubectl config set-credentials ${KUBE_TELEPORT_USER} --exec-env=TELEPORT_USER=${TELEPORT_USER}
+kubectl config set-credentials ${KUBE_TELEPORT_USER} --exec-env=TELEPORT_LOGIN_BIND_ADDR=${TELEPORT_LOGIN_BIND_ADDR}
 
-TSH_CONTEXT=${TSH_CONTEXT} TSH_PROXY=${TSH_PROXY} yq e '(.users[] | select(.name == env(TSH_CONTEXT))).user.exec.env += [{"name": "TELEPORT_PROXY", "value": env(TSH_PROXY)}]' -i ${KUBECONFIG}
+# Rename kube context
+if kubectl config get-contexts ${KUBE_TELEPORT_CONTEXT} &> /dev/null; then
+    kubectl config delete-context ${KUBE_TELEPORT_CONTEXT}
+fi
+kubectl config rename-context $(kubectl config current-context) ${KUBE_TELEPORT_CONTEXT}
+
+# Switch current context
+kubectl config use-context ${KUBE_CURRENT_CONTEXT}
