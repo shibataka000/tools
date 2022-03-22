@@ -1,0 +1,4 @@
+#!/bin/bash
+set -eu
+
+KUBECONFIG=$(mktemp) tsh logout
