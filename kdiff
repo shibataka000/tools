@@ -1,0 +1,23 @@
+#!/bin/bash
+######################################################################
+# Show difference of kustomize build output between two references
+######################################################################
+
+set -eu
+
+usage(){
+    echo "Usage: kdiff URL REF1 REF2"
+}
+
+if [ $# -ne 3 ]; then
+    usage
+    exit 1
+fi
+
+URL=${1}
+REF1=${2}
+REF2=${3}
+
+BUILD="kustomize build --enable-alpha-plugins"
+
+diff <(${BUILD} ${URL}?ref=${REF1}) <(${BUILD} ${URL}?ref=${REF2})
