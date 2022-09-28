@@ -1,4 +1,8 @@
 #!/bin/bash
+###################################
+# Log out from teleport server.
+###################################
+
 set -eu
 
 KUBECONFIG=$(mktemp) tsh logout

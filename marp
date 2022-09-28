@@ -1,2 +1,8 @@
 #!/bin/bash
+###################################
+# Run marp cli as server mode.
+###################################
+
+set -eu
+
 docker run --rm --init -v $PWD:/home/marp/app -e LANG=$LANG -e MARP_USER="$(id -u):$(id -g)" -p 8000:8080 -p 37717:37717 marpteam/marp-cli -s .

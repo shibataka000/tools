@@ -1,4 +1,8 @@
 #!/bin/bash
+##############################
+# Log in teleport server.
+##############################
+
 set -eu
 
 for bin in gh jq
