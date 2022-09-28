@@ -20,4 +20,5 @@ REF2=${3}
 
 BUILD="kustomize build --enable-alpha-plugins"
 
+echo "$ diff <(${BUILD} ${URL}?ref=${REF1}) <(${BUILD} ${URL}?ref=${REF2})"
 diff -u -N --color=auto <(${BUILD} ${URL}?ref=${REF1}) <(${BUILD} ${URL}?ref=${REF2})
