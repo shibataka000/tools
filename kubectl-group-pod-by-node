@@ -1,0 +1,15 @@
+#!/bin/bash
+##############################
+# Get pods grouped by node.
+##############################
+
+set -eu
+
+node_attr=${ATTR:-"Taints: {range .spec.taints[*]}{.key}={.value}:{.effect}{end}"}
+
+for node in $(kubectl get node -o jsonpath="{.items[*].metadata.name}" $@)
+do
+    kubectl get node ${node} -o jsonpath="==================== {.metadata.name} (${node_attr}) ===================={'\n'}" $@
+    kubectl get pod --field-selector="spec.nodeName=${node}" -A $@
+    echo ""
+done
