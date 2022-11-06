@@ -1,0 +1,21 @@
+#!/bin/bash
+########################################
+# kubectl plugin for Argo Rollouts
+########################################
+
+set -e
+
+bin=kubectl-argo-rollouts
+
+if [ ! $(command -v ${bin}) ]; then
+    echo "${bin} is not installed"
+    exit 1
+fi
+
+if [ "$1" = "d" ] || [ "$1" = "dashboard" ]; then
+    shift
+    ${bin} dashboard $@
+    exit $?
+fi
+
+${bin} $@

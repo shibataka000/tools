@@ -1,0 +1,21 @@
+#!/bin/bash
+########################################
+# kubectl plugin for Argo CD
+########################################
+
+set -e
+
+bin=argocd
+
+if [ ! $(command -v ${bin}) ]; then
+    echo "${bin} is not installed"
+    exit 1
+fi
+
+if [ "$1" = "d" ] || [ "$1" = "dashboard" ] || [ "$1" = "port-forward" ] || [ "$1" = "p" ]; then
+    shift
+    kubectl $@ -n argocd port-forward svc/argocd-server 8000:80
+    exit $?
+fi
+
+${bin} --port-forward-namespace argocd $@
