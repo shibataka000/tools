@@ -1,0 +1,8 @@
+#!/bin/bash
+#############################################
+# Run port forwarding to Argo CD server.
+#############################################
+
+set -eu
+
+kubectl $@ -n argocd port-forward svc/argocd-server 8000:80
