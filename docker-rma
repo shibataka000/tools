@@ -4,7 +4,7 @@
 ##################################################
 
 if [ "${1}" = "docker-cli-plugin-metadata" ]; then
-    echo '{"SchemaVersion": "0.1.0","Vendor": "shibataka000","Version": "0.0.1","ShortDescription": "Delete all docker containers and images"}'
+    echo '{"SchemaVersion": "0.1.0","Vendor": "shibataka000","Version": "v0.0.1","ShortDescription": "Delete all docker containers and images"}'
     exit
 fi
 
