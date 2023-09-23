@@ -9,5 +9,5 @@ TELEPORT_CLUSTER="${2:-${1}}"
 TELEPORT_KUBE_CLUSTER="${1}"
 TELEPORT_PROXY="${1}"
 
-tsh login --proxy="${TELEPORT_PROXY}" "${TELEPORT_CLUSTER}"
+tsh login --proxy="${TELEPORT_PROXY}:443" "${TELEPORT_CLUSTER}"
 tsh kube login "${TELEPORT_KUBE_CLUSTER}"
