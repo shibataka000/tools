@@ -1,13 +1,32 @@
 #!/bin/bash
-######################################################################################
-# Show diff between output of kustomize build related to two different references.
-######################################################################################
 
-set -eu
+set -euo pipefail
 
-usage(){
-    echo "Usage: kdiff URL REF1 REF2"
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options] url ref1 ref2
+
+DESCRIPTION
+    Compare manifests built by kustomize from two different references in a github repository.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
 }
+
+while getopts h OPT
+do
+    case $OPT in
+        h) usage; exit;;
+        *) usage; exit 1;;
+    esac
+done
 
 if [ $# -ne 3 ]; then
     usage

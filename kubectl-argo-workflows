@@ -1,8 +1,23 @@
 #!/bin/bash
-#############################################
-# kubectl plugin for Argo Workflows.
-#############################################
 
-set -eu
+set -euo pipefail
+
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options]
+
+DESCRIPTION
+    Kubectl plugin for argo workflows.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
+}
 
 argo "$@"

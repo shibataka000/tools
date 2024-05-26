@@ -1,8 +1,31 @@
 #!/bin/bash
-###################################
-# Log out from teleport server.
-###################################
 
-set -eu
+set -euo pipefail
+
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options]
+
+DESCRIPTION
+    Log out from teleport server without updating kubeconfig.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
+}
+
+while getopts h OPT
+do
+    case $OPT in
+        h) usage; exit;;
+        *) usage; exit 1;;
+    esac
+done
 
 KUBECONFIG=$(mktemp) tsh logout

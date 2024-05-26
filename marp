@@ -1,8 +1,31 @@
 #!/bin/bash
-###################################
-# Run marp cli as server mode.
-###################################
 
-set -eu
+set -euo pipefail
+
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options]
+
+DESCRIPTION
+    Run marp-cli as server mode.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
+}
+
+while getopts h OPT
+do
+    case $OPT in
+        h) usage; exit;;
+        *) usage; exit 1;;
+    esac
+done
 
 docker run --rm --init -v "${PWD}:/home/marp/app" -e "LANG=${LANG}" -e MARP_USER="$(id -u):$(id -g)" -p 8000:8080 -p 37717:37717 marpteam/marp-cli -s .
