@@ -10,7 +10,7 @@ NAME
     ${COMMAND}
 
 SYNOPSIS
-    ${COMMAND} {-e|-d} -i <input_file> -o <output_file> -k <encrypted_data_key_file> [-K <kms_key_id>] [-h]
+    ${COMMAND} {-e|-d} -i <input_file> -o <output_file> -k <encrypted_data_key_file> [-K <kms_key_id>] [-r] [-h]
 
 DESCRIPTION
     Encrypt and decrypt file by envelope encryption using AWS KMS.
@@ -22,6 +22,7 @@ OPTIONS
     -k  Encrypted data key file.
     -K  KMS key id. This is required only when encryption.
     -o  Output file. This is ciphertext when encryption and plaintext when decryption.
+    -r  Remove input file after encryption/decryption.
     -h  help for ${COMMAND}.
 EOF
 }
@@ -37,7 +38,9 @@ function decrypt {
     openssl aes-256-cbc -d -in "${INPUT_FILE}" -out "${OUTPUT_FILE}" --pass pass:"${DATA_KEY}" -pbkdf2
 }
 
-while getopts dei:k:K:o:h OPT
+REMOVE_INPUT=0
+
+while getopts dei:k:K:o:rh OPT
 do
     case $OPT in
         d) MODE="decrypt";;
@@ -46,6 +49,7 @@ do
         k) DATA_KEY_FILE=${OPTARG};;
         K) KMS_KEY_ID=${OPTARG};;
         o) OUTPUT_FILE=${OPTARG};;
+        r) REMOVE_INPUT=1;;
         h) usage; exit;;
         *) usage; exit 1;;
     esac
@@ -55,3 +59,7 @@ case ${MODE} in
     encrypt) encrypt;;
     decrypt) decrypt;;
 esac
+
+if [ ${REMOVE_INPUT} -ne 0 ]; then
+    rm "${INPUT_FILE}"
+fi
