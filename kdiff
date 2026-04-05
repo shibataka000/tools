@@ -37,7 +37,7 @@ URL=${1}
 REF1=${2}
 REF2=${3}
 
-BUILD="kustomize build --enable-alpha-plugins"
+KUSTOMIZE_BUILD="kustomize build --enable-alpha-plugins"
 
-echo "$ diff <(${BUILD} ${URL}?ref=${REF1}) <(${BUILD} ${URL}?ref=${REF2})"
-diff -u -N --color=auto <(${BUILD} "${URL}?ref=${REF1}") <(${BUILD} "${URL}?ref=${REF2}")
+echo "$ diff <(${KUSTOMIZE_BUILD} ${URL}?ref=${REF1}) <(${KUSTOMIZE_BUILD} ${URL}?ref=${REF2})"
+diff -u -N --color=auto <(${KUSTOMIZE_BUILD} "${URL}?ref=${REF1}") <(${KUSTOMIZE_BUILD} "${URL}?ref=${REF2}")
