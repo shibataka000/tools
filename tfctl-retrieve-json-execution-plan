@@ -31,7 +31,7 @@ done
 
 if [ $# -ne 1 ]; then
     usage
-    return 1
+    exit 1
 fi
 
 TOKEN=$(jq -r '.credentials["app.terraform.io"].token' "${HOME}/.terraform.d/credentials.tfrc.json")
