@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options]
+
+DESCRIPTION
+    Install Atlassian Command Line Interface.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
+}
+
+while getopts h OPT
+do
+    case $OPT in
+        h) usage; exit;;
+        *) usage; exit 1;;
+    esac
+done
+
+curl -sL -o "${HOME}/.local/bin/acli" "https://acli.atlassian.com/linux/latest/acli_linux_amd64/acli"
+chmod +x "${HOME}/.local/bin/acli"
+acli -v
