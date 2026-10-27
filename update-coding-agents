@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -euo pipefail
+
+COMMAND=$(basename "${0}")
+
+function usage {
+    cat <<EOF
+NAME
+    ${COMMAND}
+
+SYNOPSIS
+    ${COMMAND} [options]
+
+DESCRIPTION
+    Update Claude Code, Codex, GitHub Copilot CLI.
+
+OPTIONS
+    -h  help for ${COMMAND}
+EOF
+}
+
+while getopts h OPT
+do
+    case $OPT in
+        h) usage; exit;;
+        *) usage; exit 1;;
+    esac
+done
+
+for app in claude codex copilot
+do
+    echo "$ ${app} update"
+    ${app} update
+done
