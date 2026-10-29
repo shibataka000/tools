@@ -30,6 +30,8 @@ done
 
 for app in claude codex copilot
 do
-    echo "$ ${app} update"
-    ${app} update
+    if [ "$(command -v ${app})" ]; then
+        echo "$ ${app} update"
+        ${app} update
+    fi
 done
